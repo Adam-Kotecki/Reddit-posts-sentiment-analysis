@@ -7,11 +7,16 @@ from sklearn.feature_extraction.text import CountVectorizer
 from gensim import corpora
 from gensim.models.ldamodel import LdaModel
 from nltk.tokenize import WhitespaceTokenizer
+import pyLDAvis
+import pyLDAvis.gensim_models as gensimvis
+import webbrowser
 
 df = pd.read_excel('sentiment_analysis.xlsx')
 
 # Count the occurrences of each sentiment label
 sentiment_counts = df['sentiment'].value_counts()
+
+sentiment_percentages = sentiment_counts / sentiment_counts.sum() * 100
 
 # Define colors for each sentiment
 colors = {
@@ -19,6 +24,16 @@ colors = {
     'neutral': 'lightblue',
     'negative': 'lightcoral'
 }
+
+
+plt.figure(figsize=(10, 8))
+wedges, categories, values = plt.pie(sentiment_percentages, labels=sentiment_percentages.index, autopct='%1.1f%%', startangle=140, colors=[colors[sent] for sent in sentiment_counts.index])
+plt.setp(categories, size=16)
+plt.setp(values, size=18)
+plt.title('Sentiment Distribution', fontsize=18)
+plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+plt.show()
+plt.savefig('assets/visual_1.png')
 
 # Bar chart of sentiment count
 plt.figure(figsize=(10, 8))
@@ -29,7 +44,7 @@ plt.title('Distribution of Sentiment', fontsize=18)
 plt.xticks(fontsize=16)
 plt.yticks(fontsize=16)
 plt.show()
-plt.savefig('assets/visual_1.png')
+plt.savefig('assets/visual_2.png')
 
 # Histogram of positive score
 plt.figure(figsize=(10, 8))
@@ -39,7 +54,7 @@ plt.xlabel('Positive score', fontsize=18)
 plt.ylabel('Frequency', fontsize=18)
 plt.xticks(fontsize=16)
 plt.yticks(fontsize=16)
-plt.savefig('assets/visual_2.png')
+plt.savefig('assets/visual_3.png')
 
 # Histogram of negative score
 plt.figure(figsize=(10, 8))
@@ -49,7 +64,7 @@ plt.xlabel('Negative score', fontsize=18)
 plt.ylabel('Frequency', fontsize=18)
 plt.xticks(fontsize=16)
 plt.yticks(fontsize=16)
-plt.savefig('assets/visual_3.png')
+plt.savefig('assets/visual_4.png')
 
 # Histogram of compound score
 plt.figure(figsize=(10, 8))
@@ -59,7 +74,7 @@ plt.xlabel('Compound score', fontsize=18)
 plt.ylabel('Frequency', fontsize=18)
 plt.xticks(fontsize=16)
 plt.yticks(fontsize=16)
-plt.savefig('assets/visual_4.png')
+plt.savefig('assets/visual_5.png')
 
 # Histogram of votes
 plt.figure(figsize=(10, 8))
@@ -69,7 +84,7 @@ plt.xlabel('Votes', fontsize=18)
 plt.ylabel('Frequency', fontsize=18)
 plt.xticks(fontsize=16)
 plt.yticks(fontsize=16)
-plt.savefig('assets/visual_5.png')
+plt.savefig('assets/visual_6.png')
 
 
 def get_wordnet_pos(word):
@@ -116,6 +131,9 @@ topics = lda_model.print_topics(num_words=5)
 for idx, topic in topics:
     print(f"Topic {idx + 1}: {topic}")
 
+lda_display = gensimvis.prepare(lda_model, corpus, dictionary, sort_topics=False)
+# pyLDAvis.display(lda_display)
+pyLDAvis.save_html(lda_display, 'lda_visualization.html')
 
-
+webbrowser.open('lda_visualization.html')
 
